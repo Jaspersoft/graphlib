@@ -1,4 +1,4 @@
-define(function() {
+(function(_) {
 
     var deps = {
         exports: {}
@@ -16,30 +16,27 @@ define(function() {
         return splitedCallerModuleNameLength[splitedCallerModuleNameLength.length - 1];
     };
 
-    var __graphlib__ = {
+    var define =  function(moduleName, depsArray, callback) {
+        moduleName = getModuleName("", moduleName);
 
-        define: function(moduleName, depsArray, callback) {
-            var self = this;
+        var module = {
+            exports: {}
+        };
 
-            moduleName = getModuleName("", moduleName);
+        callback(function(requiredModuleName) {
+            require(moduleName, requiredModuleName);
+        }, {}, module);
 
-            var module = {
-                exports: {}
-            };
+        deps.exports[moduleName] = module.exports;
+    };
 
-            callback(function(requiredModuleName) {
-                self.require(moduleName, requiredModuleName);
-            }, {}, module);
+    var require = function(callerModuleName, moduleName) {
+        moduleName = getModuleName(callerModuleName, moduleName);
 
-            deps.exports[moduleName] = module.exports;
-        },
-        require: function(callerModuleName, moduleName) {
-            moduleName = getModuleName(callerModuleName, moduleName);
-
-            return deps.exports[moduleName];
-        }
-
+        return deps.exports[moduleName];
     };
 
     /*graphlibPlaceholder*/
-});
+
+    this.graphlib = deps.exports["index.js"];
+})(_);

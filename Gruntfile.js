@@ -10,8 +10,6 @@ module.exports = function (grunt) {
 
                     "optimize": "none",
 
-                    "namespace": "__graphlib__",
-
                     "skipDirOptimize": true,
 
                     "removeCombined": true,
@@ -68,7 +66,7 @@ module.exports = function (grunt) {
 
         var result = template.replace(/\/\*graphlibPlaceholder\*\//g, fileContent);
 
-        grunt.file.write("./dist/amd/graphlib.amd.js", result);
+        grunt.file.write("./dist/shim/graphlib.shim.js", result);
     });
 
     grunt.registerTask("default", "Build graphlib amd module", [

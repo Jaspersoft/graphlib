@@ -1,4 +1,4 @@
-define(function() {
+(function(_) {
 
     var deps = {
         exports: {}
@@ -16,32 +16,27 @@ define(function() {
         return splitedCallerModuleNameLength[splitedCallerModuleNameLength.length - 1];
     };
 
-    var __graphlib__ = {
+    var define =  function(moduleName, depsArray, callback) {
+        moduleName = getModuleName("", moduleName);
 
-        define: function(moduleName, depsArray, callback) {
-            var self = this;
+        var module = {
+            exports: {}
+        };
 
-            moduleName = getModuleName("", moduleName);
+        callback(function(requiredModuleName) {
+            require(moduleName, requiredModuleName);
+        }, {}, module);
 
-            var module = {
-                exports: {}
-            };
-
-            callback(function(requiredModuleName) {
-                self.require(moduleName, requiredModuleName);
-            }, {}, module);
-
-            deps.exports[moduleName] = module.exports;
-        },
-        require: function(callerModuleName, moduleName) {
-            moduleName = getModuleName(callerModuleName, moduleName);
-
-            return deps.exports[moduleName];
-        }
-
+        deps.exports[moduleName] = module.exports;
     };
 
-    __graphlib__.define('lib/graph',['require','exports','module','./lodash'],function (require, exports, module) {"use strict";
+    var require = function(callerModuleName, moduleName) {
+        moduleName = getModuleName(callerModuleName, moduleName);
+
+        return deps.exports[moduleName];
+    };
+
+    define('lib/graph',['require','exports','module','./lodash'],function (require, exports, module) {"use strict";
 
 var _ = require("./lodash");
 
@@ -563,11 +558,11 @@ function edgeObjToId(isDirected, edgeObj) {
 
 });
 
-__graphlib__.define('lib/version',['require','exports','module'],function (require, exports, module) {module.exports = '2.0.1-pre';
+define('lib/version',['require','exports','module'],function (require, exports, module) {module.exports = '2.0.1-pre';
 
 });
 
-__graphlib__.define('lib/index',['require','exports','module','./graph','./version'],function (require, exports, module) {// Includes only the "core" of graphlib
+define('lib/index',['require','exports','module','./graph','./version'],function (require, exports, module) {// Includes only the "core" of graphlib
 module.exports = {
   Graph: require("./graph"),
   version: require("./version")
@@ -575,9 +570,9 @@ module.exports = {
 
 });
 
-__graphlib__.define('lib', ['lib/index'], function (main) { return main; });
+define('lib', ['lib/index'], function (main) { return main; });
 
-__graphlib__.define('lib/json',['require','exports','module','./lodash','./graph'],function (require, exports, module) {var _ = require("./lodash"),
+define('lib/json',['require','exports','module','./lodash','./graph'],function (require, exports, module) {var _ = require("./lodash"),
     Graph = require("./graph");
 
 module.exports = {
@@ -646,7 +641,7 @@ function read(json) {
 
 });
 
-__graphlib__.define('lib/alg/components',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
+define('lib/alg/components',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
 
 module.exports = components;
 
@@ -676,7 +671,7 @@ function components(g) {
 
 });
 
-__graphlib__.define('lib/data/priority-queue',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
+define('lib/data/priority-queue',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
 
 module.exports = PriorityQueue;
 
@@ -831,7 +826,7 @@ PriorityQueue.prototype._swap = function(i, j) {
 
 });
 
-__graphlib__.define('lib/alg/dijkstra',['require','exports','module','../lodash','../data/priority-queue'],function (require, exports, module) {var _ = require("../lodash"),
+define('lib/alg/dijkstra',['require','exports','module','../lodash','../data/priority-queue'],function (require, exports, module) {var _ = require("../lodash"),
     PriorityQueue = require("../data/priority-queue");
 
 module.exports = dijkstra;
@@ -888,7 +883,7 @@ function runDijkstra(g, source, weightFn, edgeFn) {
 
 });
 
-__graphlib__.define('lib/alg/dijkstra-all',['require','exports','module','./dijkstra','../lodash'],function (require, exports, module) {var dijkstra = require("./dijkstra"),
+define('lib/alg/dijkstra-all',['require','exports','module','./dijkstra','../lodash'],function (require, exports, module) {var dijkstra = require("./dijkstra"),
     _ = require("../lodash");
 
 module.exports = dijkstraAll;
@@ -901,7 +896,7 @@ function dijkstraAll(g, weightFunc, edgeFunc) {
 
 });
 
-__graphlib__.define('lib/alg/tarjan',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
+define('lib/alg/tarjan',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
 
 module.exports = tarjan;
 
@@ -951,7 +946,7 @@ function tarjan(g) {
 
 });
 
-__graphlib__.define('lib/alg/find-cycles',['require','exports','module','../lodash','./tarjan'],function (require, exports, module) {var _ = require("../lodash"),
+define('lib/alg/find-cycles',['require','exports','module','../lodash','./tarjan'],function (require, exports, module) {var _ = require("../lodash"),
     tarjan = require("./tarjan");
 
 module.exports = findCycles;
@@ -964,7 +959,7 @@ function findCycles(g) {
 
 });
 
-__graphlib__.define('lib/alg/floyd-warshall',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
+define('lib/alg/floyd-warshall',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
 
 module.exports = floydWarshall;
 
@@ -1017,7 +1012,7 @@ function runFloydWarshall(g, weightFn, edgeFn) {
 
 });
 
-__graphlib__.define('lib/alg/topsort',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
+define('lib/alg/topsort',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
 
 module.exports = topsort;
 topsort.CycleException = CycleException;
@@ -1054,7 +1049,7 @@ function CycleException() {}
 
 });
 
-__graphlib__.define('lib/alg/is-acyclic',['require','exports','module','./topsort'],function (require, exports, module) {var topsort = require("./topsort");
+define('lib/alg/is-acyclic',['require','exports','module','./topsort'],function (require, exports, module) {var topsort = require("./topsort");
 
 module.exports = isAcyclic;
 
@@ -1072,7 +1067,7 @@ function isAcyclic(g) {
 
 });
 
-__graphlib__.define('lib/alg/dfs',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
+define('lib/alg/dfs',['require','exports','module','../lodash'],function (require, exports, module) {var _ = require("../lodash");
 
 module.exports = dfs;
 
@@ -1117,7 +1112,7 @@ function doDfs(g, v, postorder, visited, navigation, acc) {
 
 });
 
-__graphlib__.define('lib/alg/postorder',['require','exports','module','./dfs'],function (require, exports, module) {var dfs = require("./dfs");
+define('lib/alg/postorder',['require','exports','module','./dfs'],function (require, exports, module) {var dfs = require("./dfs");
 
 module.exports = postorder;
 
@@ -1127,7 +1122,7 @@ function postorder(g, vs) {
 
 });
 
-__graphlib__.define('lib/alg/preorder',['require','exports','module','./dfs'],function (require, exports, module) {var dfs = require("./dfs");
+define('lib/alg/preorder',['require','exports','module','./dfs'],function (require, exports, module) {var dfs = require("./dfs");
 
 module.exports = preorder;
 
@@ -1137,7 +1132,7 @@ function preorder(g, vs) {
 
 });
 
-__graphlib__.define('lib/alg/prim',['require','exports','module','../lodash','../graph','../data/priority-queue'],function (require, exports, module) {var _ = require("../lodash"),
+define('lib/alg/prim',['require','exports','module','../lodash','../graph','../data/priority-queue'],function (require, exports, module) {var _ = require("../lodash"),
     Graph = require("../graph"),
     PriorityQueue = require("../data/priority-queue");
 
@@ -1192,7 +1187,7 @@ function prim(g, weightFunc) {
 
 });
 
-__graphlib__.define('lib/alg/index',['require','exports','module','./components','./dijkstra','./dijkstra-all','./find-cycles','./floyd-warshall','./is-acyclic','./postorder','./preorder','./prim','./tarjan','./topsort'],function (require, exports, module) {module.exports = {
+define('lib/alg/index',['require','exports','module','./components','./dijkstra','./dijkstra-all','./find-cycles','./floyd-warshall','./is-acyclic','./postorder','./preorder','./prim','./tarjan','./topsort'],function (require, exports, module) {module.exports = {
   components: require("./components"),
   dijkstra: require("./dijkstra"),
   dijkstraAll: require("./dijkstra-all"),
@@ -1208,9 +1203,9 @@ __graphlib__.define('lib/alg/index',['require','exports','module','./components'
 
 });
 
-__graphlib__.define('lib/alg', ['lib/alg/index'], function (main) { return main; });
+define('lib/alg', ['lib/alg/index'], function (main) { return main; });
 
-__graphlib__.define('index.js',['require','exports','module','./lib','./lib/json','./lib/alg'],function (require, exports, module) {/**
+define('index.js',['require','exports','module','./lib','./lib/json','./lib/alg'],function (require, exports, module) {/**
  * Copyright (c) 2014, Chris Pettitt
  * All rights reserved.
  *
@@ -1252,4 +1247,6 @@ module.exports = {
 });
 
 
-});
+
+    this.graphlib = deps.exports["index.js"];
+})(_);
