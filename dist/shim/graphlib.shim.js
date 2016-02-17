@@ -1,7 +1,9 @@
 (function(_) {
 
     var deps = {
-        exports: {}
+        exports: {
+            "lodash": _
+        }
     };
 
     // caller module name: lib/lodash, lib/alg/dijkstra
