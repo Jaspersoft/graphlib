@@ -13,21 +13,31 @@
 
         //splitedModuleName = splitedModuleName.slice(splitedCallerModuleNameLength);
 
-        return splitedCallerModuleNameLength[splitedCallerModuleNameLength.length - 1];
+        return splitedModuleName[splitedModuleName.length - 1];
     };
 
     var define =  function(moduleName, depsArray, callback) {
+        var result;
+
         moduleName = getModuleName("", moduleName);
 
         var module = {
             exports: {}
         };
 
-        callback(function(requiredModuleName) {
-            require(moduleName, requiredModuleName);
-        }, {}, module);
+        var callbackString = callback.toString();
 
-        deps.exports[moduleName] = module.exports;
+        if (callbackString.match(/function[\s]*\([\s]*require[\s]*,[\s]*exports[\s]*,[\s]*module[\s]*\)[\s]*/)) {
+            result = callback(function(requiredModuleName) {
+                return require(moduleName, requiredModuleName);
+            }, {}, module);
+        } else {
+            result = callback.apply(null, _.map(depsArray, function(name) {
+                return deps.exports[getModuleName("", name)];
+            }));
+        }
+
+        deps.exports[moduleName] = result || module.exports;
     };
 
     var require = function(callerModuleName, moduleName) {
