@@ -41,25 +41,7 @@ define(function() {
 
     };
 
-    __graphlib__.define('lib/lodash',['require','exports','module','lodash'],function (require, exports, module) {/* global window */
-
-var lodash;
-
-if (typeof require === "function") {
-  try {
-    lodash = require("lodash");
-  } catch (e) {}
-}
-
-if (!lodash) {
-  lodash = window._;
-}
-
-module.exports = lodash;
-
-});
-
-__graphlib__.define('lib/graph',['require','exports','module','./lodash'],function (require, exports, module) {"use strict";
+    __graphlib__.define('lib/graph',['require','exports','module','./lodash'],function (require, exports, module) {"use strict";
 
 var _ = require("./lodash");
 

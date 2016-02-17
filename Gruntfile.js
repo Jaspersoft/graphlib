@@ -19,7 +19,7 @@ module.exports = function (grunt) {
                     "preserveLicenseComments": true,
 
                     "paths": {
-                        "lodash": "empty:"
+                        "lib/lodash": "empty:"
                     },
 
                     "packages": [{
