@@ -2,42 +2,73 @@
 
     var deps = {
         exports: {
-            "lodash": _
+            "lib/lodash": _
         }
     };
 
     // caller module name: lib/lodash, lib/alg/dijkstra
     // module name: "./lodash", "../lodash", "./lib/alg"
-    // TODO: resolve paths correctly
     var getModuleName = function(callerModuleName, moduleName) {
-        var splitedCallerModuleNameLength = callerModuleName.split("/"),
-            splitedModuleName = moduleName.split("/");
+        var splitedModuleName = moduleName.split("/"),
+            splitedCallerModuleName = callerModuleName.split("/"),
+            splitedCallerModuleLength = splitedCallerModuleName.length;
 
-        //splitedModuleName = splitedModuleName.slice(splitedCallerModuleNameLength);
+        if (moduleName.match(/^\.\//)) {
+            splitedCallerModuleName.splice([splitedCallerModuleLength - 1], 1);
 
-        return splitedModuleName[splitedModuleName.length - 1];
+            [].push.apply(splitedCallerModuleName, splitedModuleName.slice(1));
+
+            return splitedCallerModuleName.join("/");
+        } else if(moduleName.match(/^\.\.\//)) {
+            var result = [];
+
+            splitedCallerModuleName.reverse();
+            splitedModuleName.reverse();
+
+            for (var i = 0; i < splitedCallerModuleLength; i++) {
+                var fragment = splitedModuleName[i];
+
+                if (!_.isUndefined(fragment)) {
+                    if (splitedModuleName[i] !== "..") {
+                        result.push(splitedModuleName[i]);
+                    }
+
+                    if (i + 1 === splitedCallerModuleLength) {
+                        result.push(splitedCallerModuleName[i]);
+                    }
+                } else {
+                    result.push(splitedCallerModuleName[i]);
+                }
+            }
+
+            return result.reverse().join("/");
+        } else {
+            return moduleName;
+        }
     };
 
-    var define =  function(moduleName, depsArray, callback) {
-        var result;
+    var define = function(moduleName, depsArray, callback) {
+        var result,
+            module = {
+                exports: {}
+            },
+            dependencies = _.map(depsArray, function(name) {
+                if (name === "require") {
+                    return function(dep) {
+                        return require.call(null, moduleName, dep);
+                    };
+                } else if (name === "exports") {
+                    return module.exports;
+                } else if (name === "module") {
+                    return module;
+                }
 
-        moduleName = getModuleName("", moduleName);
+                return deps.exports[getModuleName(moduleName, name)];
+            });
 
-        var module = {
-            exports: {}
-        };
+        moduleName = getModuleName(moduleName, moduleName);
 
-        var callbackString = callback.toString();
-
-        if (callbackString.match(/function[\s]*\([\s]*require[\s]*,[\s]*exports[\s]*,[\s]*module[\s]*\)[\s]*/)) {
-            result = callback(function(requiredModuleName) {
-                return require(moduleName, requiredModuleName);
-            }, {}, module);
-        } else {
-            result = callback.apply(null, _.map(depsArray, function(name) {
-                return deps.exports[getModuleName("", name)];
-            }));
-        }
+        result = callback.apply(null, dependencies);
 
         deps.exports[moduleName] = result || module.exports;
     };
