@@ -2,7 +2,7 @@
   "name": "graphlib",
   "version": "2.0.0",
   "main": [
-    "dist/graphlib.core.js"
+    "dist/graphlib.umd.js"
   ],
   "ignore": [
     ".*",
@@ -12,14 +12,13 @@
     "browser.js",
     "dist/graphlib.js",
     "dist/graphlib.min.js",
+    "dist/graphlib.core.js",
+    "dist/graphlib.core.min.js",
     "index.js",
     "karma*",
     "lib/**",
     "package.json",
     "src/**",
     "test/**"
-  ],
-  "dependencies": {
-    "lodash": "^3.10.0"
-  }
+  ]
 }
